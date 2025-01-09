@@ -1,0 +1,9 @@
+/* Main component styles */
+.main-container {
+    flex: 1;
+    background-color: #ffffff;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 25px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
