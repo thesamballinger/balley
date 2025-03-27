@@ -1,0 +1,420 @@
+.employees-container {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.employees-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.employees-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin: 0;
+}
+
+.employees-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.search-container {
+    position: relative;
+    width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border-radius: 25px;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    font-size: 16px;
+}
+
+.add-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-button:hover {
+    background-color: #0069d9;
+}
+
+/* Tab Navigation */
+.tab-container {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    color: #007bff;
+    background-color: #f5f9ff;
+}
+
+.tab.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+
+.employees-content {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    overflow: hidden;
+}
+
+.employees-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.employees-list.with-details {
+    flex: 0.6;
+}
+
+.employees-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Common card styles for both employees and contractors */
+.employee-card,
+.contractor-card {
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    margin: 1rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.employee-card.selected,
+.contractor-card.selected {
+    border: 2px solid #007bff;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.employee-avatar,
+.contractor-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    background-color: #fff;
+    object-fit: cover;
+}
+
+.employee-name,
+.contractor-name {
+    margin: 0.5rem 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.employee-role,
+.employee-type,
+.employee-pay,
+.contractor-role,
+.contractor-company,
+.contractor-pay {
+    margin: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+
+.employee-role,
+.contractor-role {
+    font-weight: bold;
+}
+
+.employee-type,
+.contractor-company {
+    color: #555;
+}
+
+.icon {
+    margin-right: 0.5rem;
+}
+
+.add-card {
+    cursor: pointer;
+    border: 2px dashed #ddd;
+    border-radius: 15px;
+    padding: 1rem;
+    width: 200px;
+    height: 250px;
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.2s ease;
+    background-color: #f9f9f9;
+}
+
+.add-card:hover {
+    border-color: #007bff;
+    background-color: #f0f7ff;
+}
+
+.add-icon {
+    font-size: 48px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    color: #888;
+}
+
+.add-card:hover .add-icon {
+    background-color: #e6f0ff;
+    color: #007bff;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    font-size: 18px;
+    color: #666;
+}
+
+/* Common details panel styles */
+.details-panel {
+    flex: 0.4;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.employee-details-card,
+.contractor-details-card {
+    padding: 0;
+    height: 100%;
+}
+
+.employee-details-header,
+.contractor-details-header {
+    padding: 20px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Use the same background color generation logic as the cards */
+.employee-details-header {
+    background-color: inherit;
+}
+
+.contractor-details-header {
+    background-color: inherit;
+}
+
+.employee-details-avatar,
+.contractor-details-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 15px;
+    background-color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+.employee-details-title,
+.contractor-details-title {
+    flex: 1;
+}
+
+.employee-details-title h2,
+.contractor-details-title h2 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.employee-details-title p,
+.contractor-details-title p {
+    margin: 5px 0 0;
+    color: #555;
+    font-size: 16px;
+}
+
+.employee-details-actions,
+.contractor-details-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-button,
+.save-button,
+.cancel-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.edit-button {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.edit-button:hover {
+    background-color: #e0e0e0;
+}
+
+.save-button {
+    background-color: #28a745;
+    color: white;
+}
+
+.save-button:hover {
+    background-color: #218838;
+}
+
+.cancel-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.cancel-button:hover {
+    background-color: #c82333;
+}
+
+.details-section {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.details-section h3 {
+    margin: 0 0 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+.details-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.details-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    margin-right: 15px;
+    color: #666;
+}
+
+.details-row p {
+    margin: 0;
+    color: #333;
+}
+
+.details-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .employees-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .employees-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .tab-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .employees-content {
+        flex-direction: column;
+    }
+
+    .employees-list.with-details {
+        flex: 1;
+    }
+
+    .details-panel {
+        flex: 1;
+        margin-top: 20px;
+    }
+}

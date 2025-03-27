@@ -1,9 +1,10 @@
 import React from 'react';
 import '../styles/Main.css';
 import { NavSection } from './Sidebar.tsx';
+import Employees from '../screens/Employees.tsx';
 
 interface MainProps {
-  selectedSection: NavSection;
+  selectedSection: string;
 }
 
 const Main: React.FC<MainProps> = ({ selectedSection }) => {
@@ -14,7 +15,7 @@ const Main: React.FC<MainProps> = ({ selectedSection }) => {
       case 'payroll':
         return <h2>Payroll Screen Content</h2>;
       case 'employees':
-        return <h2>Employees Screen Content</h2>;
+        return <Employees />;
       case 'balley A.I.':
         return <h2>AI Assistant Screen Content</h2>;
       case 'profile':

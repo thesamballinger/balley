@@ -1,0 +1,71 @@
+/* Sidebar styles */
+.sidebar {
+    background-color: #ffffff;
+    min-width: 150px;
+    height: calc(100vh - 2rem);
+    padding: 1rem;
+    box-sizing: border-box;
+    border-radius: 25px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    margin: 1rem;
+    position: relative;
+}
+
+.sidebar h2 {
+    margin-bottom: 2rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #555;
+    position: relative;
+}
+
+.nav-item.selected {
+    color: #1e90ff;
+    /* Dodger Blue */
+}
+
+.nav-item.selected .icon {
+    color: #1e90ff;
+    /* Dodger Blue */
+}
+
+.nav-item:hover::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background-color: #1e90ff;
+    /* Dodger Blue */
+    border-radius: 4px;
+}
+
+.nav-item.balleyAI {
+    color: #ff69b4;
+    font-weight: bold;
+}
+
+.nav-item.balleyAI.selected {
+    color: #1e90ff;
+}
+
+.nav-item.balleyAI.selected .icon {
+    color: #1e90ff;
+}
+
+.icon {
+    margin-right: 0.5rem;
+}
+
+.profile-gap {
+    margin-top: 1.5rem;
+    /* Add gap before profile */
+}
