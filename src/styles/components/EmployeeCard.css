@@ -1,0 +1,144 @@
+.employee-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 220px;
+}
+
+.employee-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background-color: inherit;
+    z-index: 0;
+}
+
+.employee-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.employee-card.selected {
+    border: 2px solid #4a6cf7;
+    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.2);
+}
+
+.employee-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+    background-color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.employee-name {
+    margin: 8px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.employee-role,
+.employee-pay {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    font-size: 0.9rem;
+    color: #666;
+    position: relative;
+    z-index: 1;
+}
+
+.icon {
+    margin-right: 8px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Status indicator */
+.status-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.status-active {
+    background-color: #4caf50;
+}
+
+.status-inactive {
+    background-color: #f44336;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .employee-card {
+        min-height: 180px;
+        padding: 16px;
+    }
+
+    .employee-avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .employee-name {
+        font-size: 1rem;
+    }
+
+    .employee-role,
+    .employee-pay {
+        font-size: 0.8rem;
+    }
+}
+
+/* Empty state styling */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #888;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    height: 100%;
+    min-height: 200px;
+}
+
+.empty-state p {
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+.empty-state .icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    color: #ccc;
+}

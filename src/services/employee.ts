@@ -9,9 +9,8 @@ const API_TOKEN = 'rwGEuUWzt62t0f2GyZwgBKbOtk0m6Vioif1K3Pkp'; // TODO: Replace w
 // Function to fetch employees for a company
 export const fetchEmployees = async (companyId: string) => {
     try {
-        const response = await axios.post(
+        const response = await axios.get(
             `${API_URL}/employees?company=${companyId}`,
-            {},
             {
                 headers: {
                     Authorization: `Bearer ${API_TOKEN}`,

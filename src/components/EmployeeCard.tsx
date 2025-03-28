@@ -1,54 +1,25 @@
 import React from 'react';
 import { FaBriefcase, FaUniversity } from 'react-icons/fa';
-
-export type Employee = {
-  id: number | string;
-  name: string;
-  firstName?: string;
-  lastName?: string;
-  role: string;
-  employmentType: 'Employee (W2)';
-  payRate: number;
-  payRateType: 'hour' | 'year';
-  avatar?: string;
-  email?: string;
-  phone?: string;
-  birthdate?: string;
-  ssn?: string;
-  ssnLast4?: string;
-  address?: string;
-  federalWithholdings?: {
-    filingStatus: 'Single' | 'Married' | 'Jointly' | 'Head of household';
-    allowances: number;
-    dependents: number;
-    extraWithholdings: number;
-  };
-  stateWithholdings?: {
-    filingStatus: 'Single' | 'Married';
-    allowances: number;
-    dependents: number;
-    extraWithholdings: number;
-  };
-  paymentMethod?: {
-    bankName: string;
-    accountLast4: string;
-    payFrequency: string;
-  };
-};
+import { Employee } from '../types/Employee.ts';
+import '../styles/components/EmployeeCard.css';
 
 interface EmployeeCardProps {
   employee: Employee;
   isSelected: boolean;
-  onSelect: (employeeId: number | string) => void;
+  onClick: (id: string) => void;
 }
 
 const EmployeeCard: React.FC<EmployeeCardProps> = ({
   employee,
   isSelected,
-  onSelect,
+  onClick,
 }) => {
   const handleClick = () => {
-    onSelect(employee.id);
+    if (employee.id) {
+      onClick(employee.id as string);
+    } else {
+      console.error('Employee ID is missing:', employee);
+    }
   };
 
   // Generate background color based on name (for consistency)

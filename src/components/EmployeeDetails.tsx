@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Employee } from './EmployeeCard';
-import { FaEdit, FaSave, FaTimes, FaEnvelope, FaPhone, FaCalendarAlt, FaIdCard, FaHome, FaUser, FaDollarSign, FaUniversity } from 'react-icons/fa';
+import { Employee } from '../types/Employee.ts';
+import { FaEdit, FaSave, FaTimes, FaEnvelope, FaPhone, FaCalendarAlt, 
+  FaIdCard, FaHome, FaUser, FaDollarSign, FaUniversity, FaInfoCircle,
+  FaFileAlt, FaPercentage, FaUsers, FaMoneyBillWave } from 'react-icons/fa';
+import Tooltip from './Tooltip.tsx';
+import '../styles/components/EmployeeDetails.css';
 
 interface EmployeeDetailsProps {
   employee: Employee;
-  onSave: (updatedEmployee: Employee) => void;
+  onSave: (id: string, updatedEmployee: Partial<Employee>) => void;
 }
 
 const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) => {
@@ -24,8 +28,18 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
     }));
   };
 
+  const handleNestedInputChange = (category: string, field: string, value: any) => {
+    setDisplayData(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category as keyof Employee],
+        [field]: value
+      }
+    }));
+  };
+
   const handleSave = () => {
-    onSave(displayData);
+    onSave(employee.id as string, displayData);
     setIsEditing(false);
   };
 
@@ -42,6 +56,14 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
     return colors[Math.abs(hash) % colors.length];
+  };
+
+  const formatPayRate = () => {
+    if (displayData.payRateType === 'hour') {
+      return `$${displayData.payRate}/hour`;
+    } else {
+      return `$${displayData.payRate.toLocaleString()}/year`;
+    }
   };
 
   if (!displayData) return null;
@@ -79,9 +101,14 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
         </div>
       </div>
 
-      {/* Contact Info */}
+      {/* Contact Information */}
       <div className="details-section">
-        <h3>Contact</h3>
+        <h3 className="section-title">
+          Contact
+          <Tooltip content="Employee's contact information">
+            <FaInfoCircle className="info-icon" />
+          </Tooltip>
+        </h3>
         <div className="details-row">
           <div className="details-icon"><FaEnvelope /></div>
           {isEditing ? (
@@ -91,9 +118,10 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
               value={displayData.email || ''}
               onChange={handleInputChange}
               className="details-input"
+              placeholder="Email address"
             />
           ) : (
-            <p>{displayData.email}</p>
+            <p>{displayData.email || 'No email provided'}</p>
           )}
         </div>
         <div className="details-row">
@@ -105,19 +133,46 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
               value={displayData.phone || ''}
               onChange={handleInputChange}
               className="details-input"
+              placeholder="Phone number"
             />
           ) : (
-            <p>{displayData.phone}</p>
+            <p>{displayData.phone || 'No phone provided'}</p>
           )}
         </div>
       </div>
 
-      {/* Employee Info */}
+      {/* Employee Information */}
       <div className="details-section">
-        <h3>Employee Info</h3>
+        <h3 className="section-title">
+          Employee info
+          <Tooltip content="Personal information used for payroll and tax purposes">
+            <FaInfoCircle className="info-icon" />
+          </Tooltip>
+        </h3>
         <div className="details-row">
           <div className="details-icon"><FaUser /></div>
-          <p>Male</p>
+          {isEditing ? (
+            <div className="input-group">
+              <input
+                type="text"
+                name="firstName"
+                value={displayData.firstName || ''}
+                onChange={handleInputChange}
+                className="details-input"
+                placeholder="First name"
+              />
+              <input
+                type="text"
+                name="lastName"
+                value={displayData.lastName || ''}
+                onChange={handleInputChange}
+                className="details-input"
+                placeholder="Last name"
+              />
+            </div>
+          ) : (
+            <p>{displayData.firstName} {displayData.lastName}</p>
+          )}
         </div>
         <div className="details-row">
           <div className="details-icon"><FaCalendarAlt /></div>
@@ -128,14 +183,26 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
               value={displayData.birthdate || ''}
               onChange={handleInputChange}
               className="details-input"
+              placeholder="Birth date (YYYY-MM-DD)"
             />
           ) : (
-            <p>{displayData.birthdate}</p>
+            <p>{displayData.birthdate || 'No birthdate provided'}</p>
           )}
         </div>
         <div className="details-row">
           <div className="details-icon"><FaIdCard /></div>
-          <p>SSN: *** - ** - {displayData.ssnLast4}</p>
+          {isEditing ? (
+            <input
+              type="text"
+              name="ssn"
+              value={displayData.ssn || ''}
+              onChange={handleInputChange}
+              className="details-input"
+              placeholder="SSN (only visible during editing)"
+            />
+          ) : (
+            <p>SSN: *** - ** - {displayData.ssnLast4 || '****'}</p>
+          )}
         </div>
         <div className="details-row">
           <div className="details-icon"><FaHome /></div>
@@ -146,73 +213,222 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee, onSave }) =
               value={displayData.address || ''}
               onChange={handleInputChange}
               className="details-input"
+              placeholder="Full address"
             />
           ) : (
-            <p>{displayData.address}</p>
+            <p>{displayData.address || 'No address provided'}</p>
           )}
         </div>
       </div>
 
       {/* Federal Withholdings */}
       <div className="details-section">
-        <h3>Federal Withholdings</h3>
+        <h3 className="section-title">
+          Federal withholdings
+          <Tooltip content="Tax withholding information for federal taxes">
+            <FaInfoCircle className="info-icon" />
+          </Tooltip>
+        </h3>
         <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>Married</p>
+          <div className="details-icon"><FaFileAlt /></div>
+          {isEditing ? (
+            <select
+              value={displayData.federalWithholdings?.filingStatus || 'Single'}
+              onChange={(e) => handleNestedInputChange('federalWithholdings', 'filingStatus', e.target.value)}
+              className="details-input"
+            >
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Jointly">Jointly</option>
+              <option value="Head of household">Head of household</option>
+            </select>
+          ) : (
+            <p>{displayData.federalWithholdings?.filingStatus || 'Single'}</p>
+          )}
         </div>
         <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>Jointly</p>
+          <div className="details-icon"><FaUsers /></div>
+          {isEditing ? (
+            <input
+              type="number"
+              value={displayData.federalWithholdings?.dependents || 0}
+              onChange={(e) => handleNestedInputChange('federalWithholdings', 'dependents', parseInt(e.target.value))}
+              className="details-input"
+              min="0"
+            />
+          ) : (
+            <p>{displayData.federalWithholdings?.dependents || 0} dependents</p>
+          )}
         </div>
         <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>Head of household</p>
-        </div>
-        <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>0 dependents</p>
-        </div>
-        <div className="details-row">
-          <div className="details-icon"><FaDollarSign /></div>
-          <p>Extra withholdings: $0</p>
+          <div className="details-icon"><FaMoneyBillWave /></div>
+          {isEditing ? (
+            <div className="input-group">
+              <span className="input-prefix">$</span>
+              <input
+                type="number"
+                value={displayData.federalWithholdings?.extraWithholdings || 0}
+                onChange={(e) => handleNestedInputChange('federalWithholdings', 'extraWithholdings', parseFloat(e.target.value))}
+                className="details-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
+          ) : (
+            <p>Extra withholdings: ${displayData.federalWithholdings?.extraWithholdings || 0}</p>
+          )}
         </div>
       </div>
 
       {/* State Withholdings */}
       <div className="details-section">
-        <h3>State Withholdings</h3>
+        <h3 className="section-title">
+          State withholdings
+          <Tooltip content="Tax withholding information for state taxes">
+            <FaInfoCircle className="info-icon" />
+          </Tooltip>
+        </h3>
         <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>Married</p>
+          <div className="details-icon"><FaFileAlt /></div>
+          {isEditing ? (
+            <select
+              value={displayData.stateWithholdings?.filingStatus || 'Single'}
+              onChange={(e) => handleNestedInputChange('stateWithholdings', 'filingStatus', e.target.value)}
+              className="details-input"
+            >
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+            </select>
+          ) : (
+            <p>{displayData.stateWithholdings?.filingStatus || 'Single'}</p>
+          )}
         </div>
         <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>0 allowances</p>
+          <div className="details-icon"><FaPercentage /></div>
+          {isEditing ? (
+            <input
+              type="number"
+              value={displayData.stateWithholdings?.allowances || 0}
+              onChange={(e) => handleNestedInputChange('stateWithholdings', 'allowances', parseInt(e.target.value))}
+              className="details-input"
+              min="0"
+            />
+          ) : (
+            <p>{displayData.stateWithholdings?.allowances || 0} allowances</p>
+          )}
         </div>
         <div className="details-row">
-          <div className="details-icon"><FaUser /></div>
-          <p>0 dependents</p>
+          <div className="details-icon"><FaUsers /></div>
+          {isEditing ? (
+            <input
+              type="number"
+              value={displayData.stateWithholdings?.dependents || 0}
+              onChange={(e) => handleNestedInputChange('stateWithholdings', 'dependents', parseInt(e.target.value))}
+              className="details-input"
+              min="0"
+            />
+          ) : (
+            <p>{displayData.stateWithholdings?.dependents || 0} dependents</p>
+          )}
         </div>
         <div className="details-row">
-          <div className="details-icon"><FaDollarSign /></div>
-          <p>Extra withholdings: $0</p>
+          <div className="details-icon"><FaMoneyBillWave /></div>
+          {isEditing ? (
+            <div className="input-group">
+              <span className="input-prefix">$</span>
+              <input
+                type="number"
+                value={displayData.stateWithholdings?.extraWithholdings || 0}
+                onChange={(e) => handleNestedInputChange('stateWithholdings', 'extraWithholdings', parseFloat(e.target.value))}
+                className="details-input"
+                min="0"
+                step="0.01"
+              />
+            </div>
+          ) : (
+            <p>Extra withholdings: ${displayData.stateWithholdings?.extraWithholdings || 0}</p>
+          )}
         </div>
       </div>
 
-      {/* Payment Method */}
+      {/* Payment Information */}
       <div className="details-section">
-        <h3>Payment</h3>
+        <h3 className="section-title">
+          Payment
+          <Tooltip content="Payment method and schedule information">
+            <FaInfoCircle className="info-icon" />
+          </Tooltip>
+        </h3>
+        <div className="details-row">
+          <div className="details-icon"><FaDollarSign /></div>
+          {isEditing ? (
+            <div className="input-group">
+              <span className="input-prefix">$</span>
+              <input
+                type="number"
+                name="payRate"
+                value={displayData.payRate || 0}
+                onChange={handleInputChange}
+                className="details-input"
+                min="0"
+                step="0.01"
+              />
+              <select
+                name="payRateType"
+                value={displayData.payRateType}
+                onChange={handleInputChange}
+                className="details-input"
+              >
+                <option value="hour">per hour</option>
+                <option value="year">per year</option>
+              </select>
+            </div>
+          ) : (
+            <p>{formatPayRate()}</p>
+          )}
+        </div>
         <div className="details-row">
           <div className="details-icon"><FaUniversity /></div>
-          <p>{displayData.paymentMethod?.bankName || 'No bank'} Checking</p>
+          {isEditing ? (
+            <input
+              type="text"
+              value={displayData.paymentMethod?.bankName || ''}
+              onChange={(e) => handleNestedInputChange('paymentMethod', 'bankName', e.target.value)}
+              className="details-input"
+              placeholder="Bank name"
+            />
+          ) : (
+            <p>{displayData.paymentMethod?.bankName || 'No bank information'}</p>
+          )}
         </div>
         <div className="details-row">
           <div className="details-icon"><FaIdCard /></div>
-          <p>**** {displayData.paymentMethod?.accountLast4 || '0000'}</p>
+          {isEditing ? (
+            <input
+              type="text"
+              value={displayData.paymentMethod?.accountLast4 || ''}
+              onChange={(e) => handleNestedInputChange('paymentMethod', 'accountLast4', e.target.value)}
+              className="details-input"
+              placeholder="Last 4 digits of account"
+              maxLength={4}
+            />
+          ) : (
+            <p>**** {displayData.paymentMethod?.accountLast4 || '0000'}</p>
+          )}
         </div>
         <div className="details-row">
           <div className="details-icon"><FaCalendarAlt /></div>
-          <p>{displayData.paymentMethod?.payFrequency || 'No payment schedule'}</p>
+          {isEditing ? (
+            <input
+              type="text"
+              value={displayData.paymentMethod?.payFrequency || ''}
+              onChange={(e) => handleNestedInputChange('paymentMethod', 'payFrequency', e.target.value)}
+              className="details-input"
+              placeholder="Payment frequency"
+            />
+          ) : (
+            <p>{displayData.paymentMethod?.payFrequency || 'No payment schedule'}</p>
+          )}
         </div>
       </div>
     </div>

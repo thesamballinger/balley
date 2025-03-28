@@ -5,11 +5,13 @@ import Main from './components/Main.tsx';
 const App = () => {
   const [selectedSection, setSelectedSection] = useState('home');
 
-  // Styles for the root container to have a light grey background and a flex layout
+  // Styles for the root container with light grey background
   const appContainerStyle = {
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'lightgrey',
     display: 'flex',
+    padding: '1.5rem',
+    gap: '1.5rem',
   };
 
   return (
@@ -21,7 +23,7 @@ const App = () => {
       />
 
       {/* Main Panel */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginRight: '2rem' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Main selectedSection={selectedSection} />
       </div>
     </div>

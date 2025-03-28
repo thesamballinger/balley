@@ -1,37 +1,27 @@
 import React, { useState } from 'react';
-import { FaTimes, FaUser, FaBriefcase, FaEnvelope, FaPhone, FaCalendarAlt, FaIdCard, FaHome, FaDollarSign, FaUniversity } from 'react-icons/fa';
-import EmployeeAvatarSelector from './EmployeeAvatarSelector.tsx';
-import { Employee } from './EmployeeCard.tsx';
+import { FaTimes, FaUser, FaEnvelope, FaPhone, FaDollarSign, FaBriefcase, FaCalendarAlt, FaIdCard, FaHome } from 'react-icons/fa';
+import { Employee } from '../types/Employee.ts';
+import '../styles/components/AddEmployeeWizard.css';
 
 interface AddEmployeeWizardProps {
   onClose: () => void;
   onAddEmployee: (employee: Omit<Employee, 'id'>) => void;
 }
 
-type WizardStep = 
-  | 'name'
-  | 'contact'
-  | 'role'
-  | 'payType'
-  | 'payRate'
-  | 'summary';
-
 const AddEmployeeWizard: React.FC<AddEmployeeWizardProps> = ({ onClose, onAddEmployee }) => {
-  const [currentStep, setCurrentStep] = useState<WizardStep>('name');
-  const [progress, setProgress] = useState(0);
-  
-  // Form state
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Omit<Employee, 'id'>>({
     name: '',
     firstName: '',
     lastName: '',
+    middleName: '',
+    email: '',
+    phone: '',
     role: '',
     employmentType: 'Employee (W2)',
     payRate: 0,
     payRateType: 'hour',
-    avatar: '',
-    email: '',
-    phone: '',
+    avatar: `https://api.dicebear.com/7.x/personas/svg?seed=${Math.random()}`,
     birthdate: '',
     ssnLast4: '',
     address: '',
@@ -54,459 +44,282 @@ const AddEmployeeWizard: React.FC<AddEmployeeWizardProps> = ({ onClose, onAddEmp
     }
   });
 
-  const updateFormData = (updates: Partial<Omit<Employee, 'id'>>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleNext = () => {
-    switch (currentStep) {
-      case 'name':
-        setCurrentStep('contact');
-        setProgress(20);
-        break;
-      case 'contact':
-        setCurrentStep('role');
-        setProgress(40);
-        break;
-      case 'role':
-        setCurrentStep('payType');
-        setProgress(60);
-        break;
-      case 'payType':
-        setCurrentStep('payRate');
-        setProgress(80);
-        break;
-      case 'payRate':
-        setCurrentStep('summary');
-        setProgress(100);
-        break;
-      case 'summary':
-        handleSubmit();
-        break;
-    }
+  const handleNestedInputChange = (category: string, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category as keyof typeof prev],
+        [field]: value
+      }
+    }));
   };
 
-  const handlePrevious = () => {
-    switch (currentStep) {
-      case 'contact':
-        setCurrentStep('name');
-        setProgress(0);
-        break;
-      case 'role':
-        setCurrentStep('contact');
-        setProgress(20);
-        break;
-      case 'payType':
-        setCurrentStep('role');
-        setProgress(40);
-        break;
-      case 'payRate':
-        setCurrentStep('payType');
-        setProgress(60);
-        break;
-      case 'summary':
-        setCurrentStep('payRate');
-        setProgress(80);
-        break;
-    }
-  };
-
-  const handleSubmit = () => {
-    // Combine first and last name if name is not set
-    if (!formData.name && formData.firstName && formData.lastName) {
-      updateFormData({ name: `${formData.firstName} ${formData.lastName}` });
-    }
-    
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     onAddEmployee(formData);
     onClose();
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 'name':
-        return (
-          <div>
-            <h2>Who's joining your team?</h2>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaUser size={24} style={{ marginRight: '10px' }} />
-              <input
-                type="text"
-                placeholder="First and last name"
-                value={`${formData.firstName || ''} ${formData.lastName || ''}`.trim()}
-                onChange={(e) => {
-                  const nameParts = e.target.value.split(' ');
-                  const firstName = nameParts[0] || '';
-                  const lastName = nameParts.slice(1).join(' ') || '';
-                  updateFormData({ 
-                    firstName, 
-                    lastName,
-                    name: e.target.value.trim()
-                  });
-                }}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              />
-            </div>
-            <EmployeeAvatarSelector 
-              onSelect={(avatarUrl) => updateFormData({ avatar: avatarUrl })}
-            />
-          </div>
-        );
-      
-      case 'contact':
-        return (
-          <div>
-            <h2>How can we reach them?</h2>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaEnvelope size={24} style={{ marginRight: '10px' }} />
-              <input
-                type="email"
-                placeholder="Email"
-                value={formData.email || ''}
-                onChange={(e) => updateFormData({ email: e.target.value })}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaPhone size={24} style={{ marginRight: '10px' }} />
-              <input
-                type="tel"
-                placeholder="Phone"
-                value={formData.phone || ''}
-                onChange={(e) => updateFormData({ phone: e.target.value })}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaHome size={24} style={{ marginRight: '10px' }} />
-              <input
-                type="text"
-                placeholder="Address"
-                value={formData.address || ''}
-                onChange={(e) => updateFormData({ address: e.target.value })}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              />
-            </div>
-          </div>
-        );
-      
-      case 'role':
-        return (
-          <div>
-            <h2>What's their role?</h2>
-            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '30px' }}>
-              <div 
-                onClick={() => updateFormData({ employmentType: 'Contractor (1099)' })}
-                style={{
-                  padding: '20px',
-                  border: formData.employmentType === 'Contractor (1099)' ? '2px solid #007bff' : '1px solid #ddd',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  width: '45%'
-                }}
-              >
-                <div style={{ fontSize: '48px', marginBottom: '10px' }}>👷</div>
-                <h3>Contractor<br/>(1099)</h3>
-              </div>
-              <div 
-                onClick={() => updateFormData({ employmentType: 'Employee (W2)' })}
-                style={{
-                  padding: '20px',
-                  border: formData.employmentType === 'Employee (W2)' ? '2px solid #007bff' : '1px solid #ddd',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  width: '45%'
-                }}
-              >
-                <div style={{ fontSize: '48px', marginBottom: '10px' }}>👔</div>
-                <h3>Employee<br/>(W-2)</h3>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaBriefcase size={24} style={{ marginRight: '10px', flexShrink: 0 }} />
-              <input
-                type="text"
-                placeholder="Job title (e.g. Software Engineer)"
-                value={formData.role || ''}
-                onChange={(e) => updateFormData({ role: e.target.value })}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              />
-            </div>
-          </div>
-        );
-      
-      case 'payType':
-        return (
-          <div>
-            <h2>What's their pay?</h2>
-            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '30px' }}>
-              <div 
-                onClick={() => updateFormData({ payRateType: 'hour' })}
-                style={{
-                  padding: '20px',
-                  border: formData.payRateType === 'hour' ? '2px solid #007bff' : '1px solid #ddd',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  width: '45%'
-                }}
-              >
-                <div style={{ fontSize: '48px', marginBottom: '10px' }}>⏱️</div>
-                <h3>Hourly</h3>
-              </div>
-              <div 
-                onClick={() => updateFormData({ payRateType: 'year' })}
-                style={{
-                  padding: '20px',
-                  border: formData.payRateType === 'year' ? '2px solid #007bff' : '1px solid #ddd',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  width: '45%'
-                }}
-              >
-                <div style={{ fontSize: '48px', marginBottom: '10px' }}>📅</div>
-                <h3>Salaried</h3>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'payRate':
-        return (
-          <div>
-            <h2>What's their pay?</h2>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaDollarSign size={24} style={{ marginRight: '10px', flexShrink: 0 }} />
-              <input
-                type="number"
-                placeholder={formData.payRateType === 'hour' ? "Hourly rate" : "Annual salary"}
-                value={formData.payRate || ''}
-                onChange={(e) => updateFormData({ payRate: parseFloat(e.target.value) || 0 })}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              />
-              <span style={{ marginLeft: '10px', flexShrink: 0 }}>
-                / {formData.payRateType === 'hour' ? 'hour' : 'year'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <FaUniversity size={24} style={{ marginRight: '10px', flexShrink: 0 }} />
-              <select
-                value={formData.paymentMethod?.payFrequency || 'Bi-weekly payouts'}
-                onChange={(e) => updateFormData({ 
-                  paymentMethod: { 
-                    ...formData.paymentMethod as any, 
-                    payFrequency: e.target.value 
-                  } 
-                })}
-                style={{
-                  padding: '12px',
-                  fontSize: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  width: '100%'
-                }}
-              >
-                <option value="Weekly payouts">Weekly payouts</option>
-                <option value="Bi-weekly payouts">Bi-weekly payouts</option>
-                <option value="Monthly payouts">Monthly payouts</option>
-                <option value="Semi-monthly payouts">Semi-monthly payouts</option>
-              </select>
-            </div>
-          </div>
-        );
-      
-      case 'summary':
-        return (
-          <div>
-            <h2>That's it! Time to Invite them!</h2>
-            <h3>Here's what we'll send to {formData.name}:</h3>
-            
-            <div style={{ 
-              border: '1px solid #ddd', 
-              borderRadius: '12px', 
-              padding: '20px',
-              marginBottom: '20px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                <FaBriefcase size={24} style={{ marginRight: '10px', flexShrink: 0 }} />
-                <div>
-                  <strong>Role: {formData.role} - </strong>
-                  <span style={{ color: '#007bff' }}>{formData.employmentType}</span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                <FaDollarSign size={24} style={{ marginRight: '10px', flexShrink: 0 }} />
-                <div>
-                  <strong>Pay: </strong>
-                  <span style={{ color: '#007bff' }}>
-                    ${formData.payRate.toLocaleString()} / {formData.payRateType}
-                  </span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <FaEnvelope size={24} style={{ marginRight: '10px', flexShrink: 0 }} />
-                <div>
-                  <strong>Invite Link to: </strong>
-                  <span style={{ color: '#007bff' }}>{formData.email}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ textAlign: 'center' }}>
-              <img 
-                src={formData.avatar || `https://api.dicebear.com/7.x/personas/svg?seed=${formData.name}`}
-                alt="Employee avatar"
-                style={{ 
-                  width: '120px', 
-                  height: '120px', 
-                  borderRadius: '50%',
-                  border: '2px solid #ddd'
-                }}
-              />
-            </div>
-          </div>
-        );
-    }
+  const nextStep = () => {
+    setStep(prevStep => prevStep + 1);
+  };
+
+  const prevStep = () => {
+    setStep(prevStep => prevStep - 1);
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '15px',
-        width: '90%',
-        maxWidth: '600px',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        padding: '20px',
-        position: 'relative'
-      }}>
-        <button 
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '15px',
-            left: '15px',
-            background: 'none',
-            border: 'none',
-            fontSize: '24px',
-            cursor: 'pointer'
-          }}
-        >
-          <FaTimes />
-        </button>
-        
-        {/* Progress bar */}
-        <div style={{
-          height: '8px',
-          backgroundColor: '#e0e0e0',
-          borderRadius: '4px',
-          marginBottom: '20px',
-          marginTop: '10px'
-        }}>
-          <div style={{
-            height: '100%',
-            width: `${progress}%`,
-            backgroundColor: '#007bff',
-            borderRadius: '4px',
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
-        
-        {/* Step content */}
-        <div style={{ padding: '10px 0 30px' }}>
-          {renderStepContent()}
-        </div>
-        
-        {/* Navigation buttons */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          marginTop: '20px'
-        }}>
-          {currentStep !== 'name' ? (
-            <button
-              onClick={handlePrevious}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#e0e0e0',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '16px',
-                cursor: 'pointer'
-              }}
-            >
-              Previous
-            </button>
-          ) : <div></div>}
-          
-          <button
-            onClick={handleNext}
-            style={{
-              padding: '10px 30px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}
-          >
-            {currentStep === 'summary' ? 'Send invite 🚀' : 'Go'}
+    <div className="wizard-overlay">
+      <div className="wizard-container">
+        <div className="wizard-header">
+          <h2>Add New Employee</h2>
+          <button className="close-button" onClick={onClose}>
+            <FaTimes />
           </button>
         </div>
+        
+        <div className="wizard-progress">
+          <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>1</div>
+          <div className="progress-line"></div>
+          <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>2</div>
+          <div className="progress-line"></div>
+          <div className={`progress-step ${step >= 3 ? 'active' : ''}`}>3</div>
+        </div>
+        
+        <form onSubmit={handleSubmit}>
+          {step === 1 && (
+            <div className="wizard-step">
+              <h3>Basic Information</h3>
+              
+              <div className="form-group">
+                <label>First Name</label>
+                <div className="input-with-icon">
+                  <FaUser className="input-icon" />
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="First Name"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Last Name</label>
+                <div className="input-with-icon">
+                  <FaUser className="input-icon" />
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Last Name"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Email</label>
+                <div className="input-with-icon">
+                  <FaEnvelope className="input-icon" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Email Address"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Phone</label>
+                <div className="input-with-icon">
+                  <FaPhone className="input-icon" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="Phone Number"
+                  />
+                </div>
+              </div>
+              
+              <div className="wizard-buttons">
+                <button type="button" onClick={onClose} className="secondary-button">
+                  Cancel
+                </button>
+                <button type="button" onClick={nextStep} className="primary-button">
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {step === 2 && (
+            <div className="wizard-step">
+              <h3>Employment Details</h3>
+              
+              <div className="form-group">
+                <label>Role</label>
+                <div className="input-with-icon">
+                  <FaBriefcase className="input-icon" />
+                  <input
+                    type="text"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Job Title"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Pay Rate</label>
+                <div className="input-with-icon">
+                  <FaDollarSign className="input-icon" />
+                  <input
+                    type="number"
+                    name="payRate"
+                    value={formData.payRate}
+                    onChange={handleInputChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="Pay Rate"
+                  />
+                  <select
+                    name="payRateType"
+                    value={formData.payRateType}
+                    onChange={handleInputChange}
+                  >
+                    <option value="hour">per hour</option>
+                    <option value="year">per year</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Date of Birth</label>
+                <div className="input-with-icon">
+                  <FaCalendarAlt className="input-icon" />
+                  <input
+                    type="date"
+                    name="birthdate"
+                    value={formData.birthdate}
+                    onChange={handleInputChange}
+                    placeholder="Date of Birth"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Last 4 of SSN</label>
+                <div className="input-with-icon">
+                  <FaIdCard className="input-icon" />
+                  <input
+                    type="text"
+                    name="ssnLast4"
+                    value={formData.ssnLast4}
+                    onChange={handleInputChange}
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="Last 4 digits of SSN"
+                  />
+                </div>
+              </div>
+              
+              <div className="wizard-buttons">
+                <button type="button" onClick={prevStep} className="secondary-button">
+                  Back
+                </button>
+                <button type="button" onClick={nextStep} className="primary-button">
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {step === 3 && (
+            <div className="wizard-step">
+              <h3>Address & Payment</h3>
+              
+              <div className="form-group">
+                <label>Address</label>
+                <div className="input-with-icon">
+                  <FaHome className="input-icon" />
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Full Address"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Bank Name</label>
+                <input
+                  type="text"
+                  name="bankName"
+                  value={formData.paymentMethod.bankName}
+                  onChange={(e) => handleNestedInputChange('paymentMethod', 'bankName', e.target.value)}
+                  placeholder="Bank Name"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Last 4 of Account</label>
+                <input
+                  type="text"
+                  name="accountLast4"
+                  value={formData.paymentMethod.accountLast4}
+                  onChange={(e) => handleNestedInputChange('paymentMethod', 'accountLast4', e.target.value)}
+                  maxLength={4}
+                  pattern="[0-9]{4}"
+                  placeholder="Last 4 digits of account"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Pay Frequency</label>
+                <select
+                  name="payFrequency"
+                  value={formData.paymentMethod.payFrequency}
+                  onChange={(e) => handleNestedInputChange('paymentMethod', 'payFrequency', e.target.value)}
+                >
+                  <option value="Weekly payouts">Weekly</option>
+                  <option value="Bi-weekly payouts">Bi-weekly</option>
+                  <option value="Monthly payouts">Monthly</option>
+                </select>
+              </div>
+              
+              <div className="wizard-buttons">
+                <button type="button" onClick={prevStep} className="secondary-button">
+                  Back
+                </button>
+                <button type="submit" className="primary-button">
+                  Add Employee
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );

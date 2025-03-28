@@ -1,51 +1,48 @@
 /* Sidebar styles */
 .sidebar {
     background-color: #ffffff;
-    min-width: 150px;
-    height: calc(100vh - 2rem);
-    padding: 1rem;
+    min-width: 220px;
+        height: calc(100vh - 3rem);
+        padding: 2rem 1.5rem;
     box-sizing: border-box;
     border-radius: 25px;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-    margin: 1rem;
-    position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
 }
 
 .sidebar h2 {
-    margin-bottom: 2rem;
+    font-size: 2rem;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 2.5rem;
+        margin-top: 0;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    margin: 0.25rem 0;
+    margin: 0.5rem 0;
     border-radius: 8px;
     cursor: pointer;
-    color: #555;
+    color: #666;
+        font-weight: 500;
     position: relative;
+    transition: all 0.2s ease;
 }
 
 .nav-item.selected {
     color: #1e90ff;
-    /* Dodger Blue */
+    background-color: rgba(30, 144, 255, 0.1);
 }
 
 .nav-item.selected .icon {
     color: #1e90ff;
-    /* Dodger Blue */
 }
 
-.nav-item:hover::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 0;
-    bottom: 0;
-    width: 8px;
-    background-color: #1e90ff;
-    /* Dodger Blue */
-    border-radius: 4px;
+.nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .nav-item.balleyAI {
@@ -55,6 +52,7 @@
 
 .nav-item.balleyAI.selected {
     color: #1e90ff;
+    background-color: rgba(30, 144, 255, 0.1);
 }
 
 .nav-item.balleyAI.selected .icon {
@@ -62,10 +60,40 @@
 }
 
 .icon {
-    margin-right: 0.5rem;
+    margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    .profile-section {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .profile-container {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+    }
+    
+    .profile-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+    }
+    
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .profile-name {
+        font-weight: 600;
+        color: #333;
 }
 
-.profile-gap {
-    margin-top: 1.5rem;
-    /* Add gap before profile */
+.profile-role {
+    font-size: 0.8rem;
+    color: #777;
 }
