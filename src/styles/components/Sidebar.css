@@ -1,71 +1,154 @@
 /* Sidebar styles */
 .sidebar {
     background-color: #ffffff;
-    min-width: 150px;
-    height: calc(100vh - 2rem);
-    padding: 1rem;
+    min-width: 220px;
+        height: calc(100vh - 3rem);
+        padding: 2rem 1.5rem;
     box-sizing: border-box;
     border-radius: 25px;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-    margin: 1rem;
-    position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
 }
 
-.sidebar h2 {
+/* Logo styling */
+.logo {
+    margin-bottom: 3rem;
+}
+
+.logo h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #000;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* Navigation menu */
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
     margin-bottom: 2rem;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    margin: 0.25rem 0;
-    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+        border-radius: 10px;
     cursor: pointer;
     color: #555;
-    position: relative;
+    font-weight: 500;
+        font-size: 1.05rem;
+        transition: all 0.2s ease;
 }
 
 .nav-item.selected {
     color: #1e90ff;
-    /* Dodger Blue */
+    background-color: rgba(30, 144, 255, 0.1);
 }
 
-.nav-item.selected .icon {
-    color: #1e90ff;
-    /* Dodger Blue */
+.nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-.nav-item:hover::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 0;
-    bottom: 0;
-    width: 8px;
-    background-color: #1e90ff;
-    /* Dodger Blue */
-    border-radius: 4px;
+.nav-icon {
+    margin-right: 1rem;
+    font-size: 1.2rem;
 }
 
+/* AI Assistant special styling */
 .nav-item.balleyAI {
     color: #ff69b4;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .nav-item.balleyAI.selected {
     color: #1e90ff;
+    background-color: rgba(30, 144, 255, 0.1);
+    }
+    
+    /* Footer section */
+    .sidebar-footer {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
 }
 
-.nav-item.balleyAI.selected .icon {
-    color: #1e90ff;
+/* User profile section */
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.icon {
-    margin-right: 0.5rem;
+.user-profile:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-.profile-gap {
-    margin-top: 1.5rem;
-    /* Add gap before profile */
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 1rem;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+    color: #333;
+}
+
+.user-role {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        min-width: 80px;
+        padding: 1.5rem 0.75rem;
+    }
+
+    .logo h1 {
+        font-size: 1.5rem;
+    }
+
+    .nav-item span,
+    .user-info {
+        display: none;
+    }
+
+    .nav-icon {
+        margin-right: 0;
+        font-size: 1.4rem;
+    }
+        .nav-item,
+        .user-profile {
+            justify-content: center;
+        }
+        .user-avatar {
+            margin-right: 0;
+        }
 }

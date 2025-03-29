@@ -1,0 +1,390 @@
+.payroll-wizard {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Progress indicator */
+.wizard-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    color: #757575;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+    background-color: #2196f3;
+    color: white;
+}
+
+.step-label {
+    font-size: 14px;
+    color: #757575;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .step-label {
+    color: #2196f3;
+    font-weight: 600;
+}
+
+.progress-line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #e0e0e0;
+    margin: 0 10px;
+    position: relative;
+    top: -18px;
+}
+
+/* Wizard content */
+.wizard-content {
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Welcome step */
+.payroll-welcome {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.payroll-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.payroll-card h2 {
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #333;
+}
+
+.payroll-info {
+    margin-bottom: 30px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.info-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e3f2fd;
+    color: #2196f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.info-icon.alert {
+    background-color: #ffebee;
+    color: #f44336;
+}
+
+.info-text {
+    flex-grow: 1;
+}
+
+.info-text p {
+    margin: 0;
+    color: #757575;
+    font-size: 14px;
+}
+
+.info-text h3 {
+    margin: 5px 0 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.primary-button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.primary-button:hover {
+    background-color: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.primary-button svg {
+    margin-right: 8px;
+}
+
+.primary-button.confirm {
+    background-color: #4caf50;
+}
+
+.primary-button.confirm:hover {
+    background-color: #388e3c;
+}
+
+.secondary-button {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+    background-color: #d5d5d5;
+}
+
+/* Review step */
+.payroll-review h2,
+.payroll-confirm h2 {
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+}
+
+.payroll-summary {
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.summary-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-item span:first-child {
+    color: #757575;
+}
+
+.summary-item.total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.employee-payroll-list {
+    margin-bottom: 30px;
+}
+
+.employee-payroll-list h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.payroll-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payroll-table th,
+.payroll-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.payroll-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.payroll-table tr:last-child td {
+    border-bottom: none;
+}
+
+.employee-cell {
+    display: flex;
+    align-items: center;
+}
+
+.employee-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.employee-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.employee-role {
+    font-size: 12px;
+    color: #757575;
+}
+
+.wizard-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+/* Confirm step */
+.confirm-card {
+    background-color: #fff8e1;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    border-left: 4px solid #ffc107;
+}
+
+.confirm-icon {
+    font-size: 24px;
+    color: #ffc107;
+    margin-right: 15px;
+    margin-top: 3px;
+}
+
+.confirm-text h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.confirm-text p {
+    margin: 0 0 10px;
+    color: #555;
+}
+
+/* Success step */
+.payroll-success {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.success-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #e8f5e9;
+    color: #4caf50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 20px;
+}
+
+.success-card h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.success-card p {
+    margin: 0 0 15px;
+    color: #555;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: #757575;
+}

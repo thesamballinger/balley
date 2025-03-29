@@ -1,77 +1,82 @@
 import React from 'react';
-import '../styles/Sidebar.css';
-import { FaUser, FaCog } from 'react-icons/fa';
-import { MdDashboard } from "react-icons/md";
-import { RiMoneyDollarBoxFill } from "react-icons/ri";
-import { BsPersonSquare } from "react-icons/bs";
-import { RiRobot2Fill } from "react-icons/ri";
+import { FaHome, FaDollarSign, FaUsers, FaRobot, FaCog } from 'react-icons/fa';
+import '../styles/components/Sidebar.css';
 
-export type NavSection = 
-  | 'home'
-  | 'payroll'
-  | 'employees'
-  | 'balley A.I.'
-  | 'settings';
-
-interface SideBarProps {
-  selectedSection: NavSection;
-  onSectionSelect: (section: NavSection) => void;
+interface SidebarProps {
+  selectedSection: string;
+  onSectionSelect: (section: string) => void;
 }
 
-const icons = {
-  home: <MdDashboard />,
-  payroll: <RiMoneyDollarBoxFill />,
-  employees: <BsPersonSquare />,
-  'balley A.I.': <RiRobot2Fill />,
-  settings: <FaCog />,
-};
-
-const SideBar = ({
-  selectedSection,
-  onSectionSelect,
-}: SideBarProps) => {
+const Sidebar: React.FC<SidebarProps> = ({ selectedSection, onSectionSelect }) => {
+  // Handle click on the HR Manager profile
+  const handleProfileClick = () => {
+    onSectionSelect('profile');
+  };
+  
   return (
     <div className="sidebar">
-      <h2>balley</h2>
-      
-      <div className="nav-menu">
-        {['home', 'payroll', 'employees', 'balley A.I.'].map((section) => (
-          <div
-            key={section}
-            className={`nav-item ${selectedSection === section ? 'selected' : ''} ${section === 'balley A.I.' ? 'balleyAI' : ''}`}
-            onClick={() => onSectionSelect(section as NavSection)}
-          >
-            <span className="icon">{icons[section as NavSection]}</span>
-            {section === 'home' ? 'Home' : 
-             section === 'balley A.I.' ? 'AI Assistant' : 
-             section.charAt(0).toUpperCase() + section.slice(1)}
-          </div>
-        ))}
+      <div className="logo">
+        <h1>balley</h1>
       </div>
       
-      <div className="profile-section">
-        <div className="profile-container">
-          <img 
-            src="https://api.dicebear.com/7.x/personas/svg?seed=Gavano" 
-            alt="Profile" 
-            className="profile-avatar" 
-          />
-          <div className="profile-info">
-            <span className="profile-name">Gavano</span>
-            <span className="profile-role">HR Manager</span>
+      <nav className="nav-menu">
+        <div 
+          className={`nav-item ${selectedSection === 'home' ? 'selected' : ''}`}
+          onClick={() => onSectionSelect('home')}
+        >
+          <FaHome className="nav-icon" />
+          <span>Home</span>
+        </div>
+        
+        <div 
+          className={`nav-item ${selectedSection === 'payroll' ? 'selected' : ''}`}
+          onClick={() => onSectionSelect('payroll')}
+        >
+          <FaDollarSign className="nav-icon" />
+          <span>Payroll</span>
+        </div>
+        
+        <div 
+          className={`nav-item ${selectedSection === 'employees' ? 'selected' : ''}`}
+          onClick={() => onSectionSelect('employees')}
+        >
+          <FaUsers className="nav-icon" />
+          <span>Employees</span>
+        </div>
+        
+        <div 
+          className={`nav-item balleyAI ${selectedSection === 'balley A.I.' ? 'selected' : ''}`}
+          onClick={() => onSectionSelect('balley A.I.')}
+        >
+          <FaRobot className="nav-icon" />
+          <span>AI Assistant</span>
+        </div>
+      </nav>
+      
+      <div className="sidebar-footer">
+        <div className="user-profile" onClick={handleProfileClick}>
+          <div className="user-avatar">
+            <img 
+              src="https://api.dicebear.com/7.x/personas/svg?seed=Gavano" 
+              alt="User Avatar" 
+            />
+          </div>
+          <div className="user-info">
+            <div className="user-name">Gavano</div>
+            <div className="user-role">HR Manager</div>
           </div>
         </div>
         
-        <div
+        <div 
           className={`nav-item ${selectedSection === 'settings' ? 'selected' : ''}`}
           onClick={() => onSectionSelect('settings')}
         >
-          <span className="icon">{icons.settings}</span>
-          Settings
+          <FaCog className="nav-icon" />
+          <span>Settings</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default SideBar;
+export default Sidebar;
