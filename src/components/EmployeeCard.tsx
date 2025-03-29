@@ -1,6 +1,6 @@
 import React from 'react';
-import { FaBriefcase, FaUniversity } from 'react-icons/fa';
-import { Employee } from '../types/Employee.ts';
+import { FaBriefcase, FaUniversity, FaCircle } from 'react-icons/fa';
+import { Employee } from '../types/Employee';
 import '../styles/components/EmployeeCard.css';
 
 interface EmployeeCardProps {
@@ -16,7 +16,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
 }) => {
   const handleClick = () => {
     if (employee.id) {
-      onClick(employee.id as string);
+      onClick(employee.id);
     } else {
       console.error('Employee ID is missing:', employee);
     }
@@ -34,10 +34,33 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
   // Format pay rate for display
   const formatPayRate = () => {
+    console.log(`Formatting pay rate for ${employee.name}:`, {
+      payRate: employee.payRate,
+      payRateType: employee.payRateType,
+      earningRates: employee.earningRates
+    });
+    
+    if (!employee.payRate) {
+      // Check if we have earning rates data but no mapped payRate
+      if (employee.earningRates && employee.earningRates.length > 0) {
+        const rate = employee.earningRates[0];
+        const amount = rate.amount || 0;
+        const period = rate.period === 'hourly' ? 'hour' : 'year';
+        
+        if (period === 'hour') {
+          return `$${amount} / hour`;
+        } else {
+          return `$${amount.toLocaleString()} / year`;
+        }
+      }
+      
+      return 'Pay rate not set';
+    }
+    
     if (employee.payRateType === 'hour') {
       return `$${employee.payRate} / hour`;
     } else {
-      return `$${employee.payRate.toLocaleString()} / year`;
+      return `$${Number(employee.payRate).toLocaleString()} / year`;
     }
   };
 
@@ -46,25 +69,54 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
     return employee.avatar || `https://api.dicebear.com/7.x/personas/svg?seed=${employee.name}`;
   };
 
+  // Get onboarding status
+  const getOnboardingStatus = () => {
+    if (!employee.onboard) return null;
+    
+    const status = employee.onboard.status;
+    let statusColor = '#999'; // Default gray
+    
+    switch (status) {
+      case 'complete':
+        statusColor = '#4caf50'; // Green
+        break;
+      case 'in_progress':
+        statusColor = '#ff9800'; // Orange
+        break;
+      case 'blocked':
+        statusColor = '#f44336'; // Red
+        break;
+      default:
+        statusColor = '#999'; // Gray
+    }
+    
+    return (
+      <div className="onboarding-status" title={`Onboarding: ${status.replace('_', ' ')}`}>
+        <FaCircle style={{ color: statusColor, fontSize: '10px' }} />
+      </div>
+    );
+  };
+
   return (
     <div
       onClick={handleClick}
       className={`employee-card ${isSelected ? 'selected' : ''}`}
       style={{
-        backgroundColor: getBackgroundColor(employee.name),
+        backgroundColor: getBackgroundColor(employee.name || 'Unknown'),
       }}
     >
+      {getOnboardingStatus()}
       <img
         src={getAvatarUrl()}
-        alt={`${employee.name} avatar`}
+        alt={`${employee.name || 'Employee'} avatar`}
         className="employee-avatar"
       />
-      <h3 className="employee-name">{employee.name}</h3>
+      <h3 className="employee-name">{employee.name || 'Unnamed Employee'}</h3>
       <p className="employee-role">
         <span className="icon">
           <FaBriefcase />
         </span>
-        {employee.role}
+        {employee.role || 'No role specified'}
       </p>
       <p className="employee-pay">
         <span className="icon">
@@ -72,6 +124,9 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         </span>
         {formatPayRate()}
       </p>
+      {employee.active === false && (
+        <div className="inactive-badge">Inactive</div>
+      )}
     </div>
   );
 };

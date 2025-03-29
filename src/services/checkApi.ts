@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { Employee } from '../types/Employee';
-import { Contractor } from '../types/Contractor';
-import { EarningRate } from '../types/EarningRate';
+import { Employee } from '../types/Employee.ts';
+import { Contractor } from '../types/Contractor.ts';
+import { EarningRate } from '../types/EarningRate.ts';
+import { mapCheckEmployeeToUI, mapUIEmployeeToCheck } from '../utils/dataAdapter.ts';
 
 const API_URL = 'http://localhost:8000/api/v1';
 
@@ -11,7 +12,21 @@ class CheckApiClient {
     async getEmployees(): Promise<Employee[]> {
         try {
             const response = await axios.get(`${API_URL}/employees`);
-            return this.mapEmployeesResponse(response.data);
+
+            // Fetch earning rates for all employees
+            const earningRatesPromises = response.data.map((employee: any) =>
+                this.getEarningRates(employee.id)
+            );
+
+            const earningRatesResults = await Promise.all(earningRatesPromises);
+            console.log('All earning rates results:', earningRatesResults);
+
+            // Map each employee with its earning rates
+            return response.data.map((employee: any, index: number) => {
+                console.log(`Mapping employee ${employee.first_name} ${employee.last_name} with rates:`,
+                    earningRatesResults[index]);
+                return mapCheckEmployeeToUI(employee, earningRatesResults[index]);
+            });
         } catch (error) {
             console.error('Error fetching employees:', error);
             throw error;
@@ -21,19 +36,55 @@ class CheckApiClient {
     async getEmployee(id: string): Promise<Employee> {
         try {
             const response = await axios.get(`${API_URL}/employees/${id}`);
-            return this.mapEmployeeResponse(response.data);
+
+            // Fetch earning rates for this employee
+            const earningRates = await this.getEarningRates(id);
+            console.log(`Earning rates for employee ${id}:`, earningRates);
+
+            // Map the employee with its earning rates
+            return mapCheckEmployeeToUI(response.data, earningRates);
         } catch (error) {
             console.error(`Error fetching employee ${id}:`, error);
             throw error;
         }
     }
 
-    async createEmployee(employeeData: Partial<Employee>): Promise<Employee> {
+    async createEmployee(employeeData: Omit<Employee, 'id'>): Promise<Employee> {
         try {
-            // Transform our frontend model to the API expected format
-            const apiData = this.prepareEmployeeData(employeeData);
-            const response = await axios.post(`${API_URL}/employees`, apiData);
-            return this.mapEmployeeResponse(response.data);
+            // Transform our UI data to Check API format
+            const checkApiData = mapUIEmployeeToCheck(employeeData as Employee);
+
+            // Add address if provided
+            if (employeeData.address) {
+                const addressParts = employeeData.address.split(',').map(part => part.trim());
+                if (addressParts.length >= 3) {
+                    checkApiData.address = {
+                        line1: addressParts[0],
+                        city: addressParts[addressParts.length - 3],
+                        state: addressParts[addressParts.length - 2],
+                        postal_code: addressParts[addressParts.length - 1],
+                        country: 'US'
+                    };
+                }
+            }
+
+            const response = await axios.post(`${API_URL}/employees`, checkApiData);
+
+            // If we have pay rate info, create an earning rate
+            if (employeeData.payRate > 0) {
+                const earningRateData = {
+                    employee: response.data.id,
+                    amount: employeeData.payRate,
+                    period: employeeData.payRateType === 'hour' ? 'hourly' : 'annually',
+                    name: 'Base Salary',
+                    workweek_hours: 40.0
+                };
+
+                await this.createEarningRate(earningRateData);
+            }
+
+            // Return the mapped employee
+            return this.getEmployee(response.data.id);
         } catch (error) {
             console.error('Error creating employee:', error);
             throw error;
@@ -42,10 +93,50 @@ class CheckApiClient {
 
     async updateEmployee(id: string, employeeData: Partial<Employee>): Promise<Employee> {
         try {
-            // Transform our frontend model to the API expected format
-            const apiData = this.prepareEmployeeData(employeeData);
-            const response = await axios.patch(`${API_URL}/employees/${id}`, apiData);
-            return this.mapEmployeeResponse(response.data);
+            // Transform our UI data to Check API format
+            const checkApiData = mapUIEmployeeToCheck({
+                ...employeeData,
+                id
+            } as Employee);
+
+            // Only include fields that were provided in the update
+            const updateData: any = {};
+            if (employeeData.firstName) updateData.first_name = checkApiData.first_name;
+            if (employeeData.lastName) updateData.last_name = checkApiData.last_name;
+            if (employeeData.email) updateData.email = checkApiData.email;
+            if (employeeData.phone) updateData.phone_number = checkApiData.phone_number;
+            if (employeeData.birthdate) updateData.dob = checkApiData.dob;
+            if (employeeData.metadata) updateData.metadata = checkApiData.metadata;
+
+            // Update the employee
+            await axios.patch(`${API_URL}/employees/${id}`, updateData);
+
+            // If pay rate was updated, update the earning rate
+            if (employeeData.payRate !== undefined) {
+                // Get existing earning rates
+                const earningRates = await this.getEarningRates(id);
+                const primaryRate = earningRates.find(rate => rate.active);
+
+                if (primaryRate) {
+                    // Update existing rate
+                    await this.updateEarningRate(primaryRate.id, {
+                        amount: employeeData.payRate,
+                        period: employeeData.payRateType === 'hour' ? 'hourly' : 'annually'
+                    });
+                } else if (employeeData.payRate > 0) {
+                    // Create new rate
+                    await this.createEarningRate({
+                        employee: id,
+                        amount: employeeData.payRate,
+                        period: employeeData.payRateType === 'hour' ? 'hourly' : 'annually',
+                        name: 'Base Salary',
+                        workweek_hours: 40.0
+                    });
+                }
+            }
+
+            // Return the updated employee
+            return this.getEmployee(id);
         } catch (error) {
             console.error(`Error updating employee ${id}:`, error);
             throw error;
@@ -63,17 +154,17 @@ class CheckApiClient {
     }
 
     // Earning rate methods
-    async getEarningRates(employeeId?: string): Promise<EarningRate[]> {
+    async getEarningRates(employeeId: string): Promise<any[]> {
         try {
-            const url = employeeId
-                ? `${API_URL}/earning_rates?employee=${employeeId}`
-                : `${API_URL}/earning_rates`;
+            const url = `${API_URL}/earning_rates?employee=${employeeId}`;
+            console.log(`Fetching earning rates from: ${url}`);
 
             const response = await axios.get(url);
+            console.log(`Earning rates response for ${employeeId}:`, response.data);
             return response.data;
         } catch (error) {
-            console.error('Error fetching earning rates:', error);
-            throw error;
+            console.error(`Error fetching earning rates for employee ${employeeId}:`, error);
+            return []; // Return empty array instead of throwing
         }
     }
 
@@ -87,123 +178,14 @@ class CheckApiClient {
         }
     }
 
-    async updateEarningRate(id: string, active: boolean): Promise<EarningRate> {
+    async updateEarningRate(id: string, data: Partial<EarningRate>): Promise<EarningRate> {
         try {
-            const response = await axios.patch(`${API_URL}/earning_rates/${id}`, { active });
+            const response = await axios.patch(`${API_URL}/earning_rates/${id}`, data);
             return response.data;
         } catch (error) {
             console.error(`Error updating earning rate ${id}:`, error);
             throw error;
         }
-    }
-
-    // Helper methods for data transformation
-    private mapEmployeesResponse(apiEmployees: any[]): Employee[] {
-        return apiEmployees.map(emp => this.mapEmployeeResponse(emp));
-    }
-
-    private mapEmployeeResponse(apiEmployee: any): Employee {
-        // Generate avatar if not provided
-        const avatar = apiEmployee.metadata?.avatar ||
-            `https://api.dicebear.com/7.x/personas/svg?seed=${apiEmployee.first_name} ${apiEmployee.last_name}`;
-
-        // Map API response to our Employee model
-        return {
-            id: apiEmployee.id,
-            name: apiEmployee.name || `${apiEmployee.first_name} ${apiEmployee.last_name}`,
-            firstName: apiEmployee.first_name,
-            lastName: apiEmployee.last_name,
-            middleName: apiEmployee.middle_name || '',
-            email: apiEmployee.email,
-            phone: apiEmployee.metadata?.phone || '',
-            role: apiEmployee.role || apiEmployee.metadata?.role || 'Employee',
-            employmentType: 'Employee (W2)',
-            payRate: apiEmployee.metadata?.payRate || 0,
-            payRateType: apiEmployee.metadata?.payRateType || 'hour',
-            avatar: avatar,
-            birthdate: apiEmployee.dob || '',
-            ssnLast4: apiEmployee.ssn_last_four || '',
-            address: apiEmployee.address?.line1
-                ? `${apiEmployee.address.line1}, ${apiEmployee.address.city}, ${apiEmployee.address.state} ${apiEmployee.address.postal_code}`
-                : '',
-            federalWithholdings: {
-                filingStatus: apiEmployee.metadata?.federalFilingStatus || 'Single',
-                allowances: apiEmployee.metadata?.federalAllowances || 0,
-                dependents: apiEmployee.metadata?.federalDependents || 0,
-                extraWithholdings: apiEmployee.metadata?.federalExtraWithholdings || 0
-            },
-            stateWithholdings: {
-                filingStatus: apiEmployee.metadata?.stateFilingStatus || 'Single',
-                allowances: apiEmployee.metadata?.stateAllowances || 0,
-                dependents: apiEmployee.metadata?.stateDependents || 0,
-                extraWithholdings: apiEmployee.metadata?.stateExtraWithholdings || 0
-            },
-            paymentMethod: {
-                bankName: apiEmployee.metadata?.bankName || 'Unknown Bank',
-                accountLast4: apiEmployee.metadata?.accountLast4 || '0000',
-                payFrequency: apiEmployee.metadata?.payFrequency || 'Bi-weekly payouts'
-            }
-        };
-    }
-
-    private prepareEmployeeData(employee: Partial<Employee>): any {
-        // Extract address components if address is a string
-        let address = null;
-        if (typeof employee.address === 'string' && employee.address) {
-            const parts = employee.address.split(',').map(part => part.trim());
-            if (parts.length >= 3) {
-                const line1 = parts[0];
-                const city = parts[1];
-                const stateZip = parts[2].split(' ');
-                const state = stateZip[0];
-                const postalCode = stateZip[1] || '';
-
-                address = {
-                    line1,
-                    city,
-                    state,
-                    postal_code: postalCode,
-                    country: 'US'
-                };
-            }
-        }
-
-        // Prepare metadata with all the custom fields we want to store
-        const metadata: Record<string, any> = {
-            ...(employee.role && { role: employee.role }),
-            ...(employee.phone && { phone: employee.phone }),
-            ...(employee.payRate && { payRate: employee.payRate }),
-            ...(employee.payRateType && { payRateType: employee.payRateType }),
-            ...(employee.avatar && { avatar: employee.avatar }),
-
-            // Payment method
-            ...(employee.paymentMethod?.bankName && { bankName: employee.paymentMethod.bankName }),
-            ...(employee.paymentMethod?.accountLast4 && { accountLast4: employee.paymentMethod.accountLast4 }),
-            ...(employee.paymentMethod?.payFrequency && { payFrequency: employee.paymentMethod.payFrequency }),
-
-            // Federal withholdings
-            ...(employee.federalWithholdings?.filingStatus && { federalFilingStatus: employee.federalWithholdings.filingStatus }),
-            ...(employee.federalWithholdings?.allowances !== undefined && { federalAllowances: employee.federalWithholdings.allowances }),
-            ...(employee.federalWithholdings?.dependents !== undefined && { federalDependents: employee.federalWithholdings.dependents }),
-            ...(employee.federalWithholdings?.extraWithholdings !== undefined && { federalExtraWithholdings: employee.federalWithholdings.extraWithholdings }),
-
-            // State withholdings
-            ...(employee.stateWithholdings?.filingStatus && { stateFilingStatus: employee.stateWithholdings.filingStatus }),
-            ...(employee.stateWithholdings?.allowances !== undefined && { stateAllowances: employee.stateWithholdings.allowances }),
-            ...(employee.stateWithholdings?.dependents !== undefined && { stateDependents: employee.stateWithholdings.dependents }),
-            ...(employee.stateWithholdings?.extraWithholdings !== undefined && { stateExtraWithholdings: employee.stateWithholdings.extraWithholdings })
-        };
-
-        // Prepare the API data format
-        return {
-            first_name: employee.firstName,
-            last_name: employee.lastName,
-            middle_name: employee.middleName,
-            email: employee.email,
-            dob: employee.birthdate,
-            ...(address && { residence: address }),
-            metadata
-        };
     }
 }
 
